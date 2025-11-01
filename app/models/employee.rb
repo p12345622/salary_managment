@@ -1,3 +1,3 @@
 class Employee < ApplicationRecord
-	# validates :full_name, :salary, :country, :job_title
+  validates :full_name, :job_title, :country, :salary, presence: true
 end
