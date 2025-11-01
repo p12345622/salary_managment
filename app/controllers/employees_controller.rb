@@ -1,5 +1,6 @@
 class EmployeesController < ApplicationController
 	before_action :set_employee, only: %[show]
+  
   def index
     render json: Employee.all
 	end
@@ -14,8 +15,45 @@ class EmployeesController < ApplicationController
     end
   end
 # employees/:id -> here need to show with perticuler id.   
-  def show 
+  def show #employees/:id
     render json: @employee
+  end
+
+  #calculate salary
+  def calculate_salary #employees/calculate_salary
+    # byebug
+    @employee = Employee.find(params[:id])
+    gross = @employee.salary.to_f
+    deduction_rate = 
+    case @employee.country.downcase
+      when "india" then 0.10
+      when "united states", "usa" then 0.12
+      else 0
+    end
+    net_salary = gross - (gross * deduction_rate)
+    render json: {
+      employee_id:@employee.id,
+      gross_salary:gross,
+      deduction: (gross * deduction_rate),
+      net_salary: net_salary
+    }
+  end
+
+  def country_metrics
+    employee = Employee.where(country: params[:country])
+    salary = employee.pluck(:salary)
+    render json: {
+      country: params[:country],
+      min: salary.min,
+      max: salary.max,
+      avg: (salary.sum / salary.size.to_f).round(2)
+    }
+  end
+
+  def job_title_metrics
+    employees = Employee.where(job_title: params[:job_title])
+    avg = employees.average(:salary).to_f.round(2)
+    render json: { job_title: params[:job_title], average_salary: avg }
   end
 
 	private 

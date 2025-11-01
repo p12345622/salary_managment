@@ -69,3 +69,4 @@ end
 
 # gem 'pg'
 gem "rspec-rails", "~> 7.1"
+gem "byebug"
