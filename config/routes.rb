@@ -9,8 +9,10 @@ Rails.application.routes.draw do
   # root "posts#index"
 
   resources :employees do
-    collection do
+    member do
       get :calculate_salary
+    end
+    collection do
       get :country_metrics
       get :job_title_metrics
     end

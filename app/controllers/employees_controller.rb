@@ -1,5 +1,5 @@
 class EmployeesController < ApplicationController
-	before_action :set_employee, only: %[show]
+	before_action :set_employee, only: [:show, :update, :destroy]
   
   def index
     render json: Employee.all
@@ -11,7 +11,7 @@ class EmployeesController < ApplicationController
     if @employee.save
       render json: @employee, status: :created
     else
-      render json: employee.errors, status: unprocessable_entity
+      render json: @employee.errors, status: :unprocessable_entity
     end
   end
 # employees/:id -> here need to show with perticuler id.   
@@ -19,10 +19,24 @@ class EmployeesController < ApplicationController
     render json: @employee
   end
 
-  #calculate salary
+  def update
+    if @employee.update(employee_params)
+      render json: @employee
+    else
+      render json: @employee.errors, status: :unprocessable_entity
+    end
+  end 
+
+  def destroy
+    @employee.destroy
+    render json: no_content
+  end
+
+  #calculate salary 
   def calculate_salary #employees/calculate_salary
     # byebug
     @employee = Employee.find(params[:id])
+    return render json: { error: "Employee not found" }, status: :not_found unless @employee
     gross = @employee.salary.to_f
     deduction_rate = 
     case @employee.country.downcase
@@ -49,7 +63,7 @@ class EmployeesController < ApplicationController
       avg: (salary.sum / salary.size.to_f).round(2)
     }
   end
-
+# get /employees/job_title_metrics?job_title=Engineer
   def job_title_metrics
     employees = Employee.where(job_title: params[:job_title])
     avg = employees.average(:salary).to_f.round(2)
